@@ -89,8 +89,9 @@ int main()
                     agentColumn = 0,
                     stepsTaken = 0;
 
-                while ((grid[agentRow][agentColumn] != CELL::END) && (stepsTaken < 150))
+                while ((grid[agentRow][agentColumn] != CELL::END) && (stepsTaken < 1000))
                 {
+                    // q-agent takes action:
                     const int state = agentRow * columns + agentColumn;
                     auto& stateQValues{qValues[state]};
 
@@ -141,6 +142,10 @@ int main()
                             break;
                     }
 
+                    // update the q-table:
+                    if (grid[newRow][newColumn] == CELL::END)
+                        reward = 100;
+
                     const int newState = newRow * columns + newColumn;
                     const auto& newStateQValues{qValues[newState]};
 
@@ -148,21 +153,27 @@ int main()
                         += learningRate *
                             (reward + discount * std::ranges::max(newStateQValues) - stateQValues[actionIndex]);
 
+                    // update NN:
+                    const int bestActionIndex = static_cast<int>(
+                        std::ranges::max_element(stateQValues) - std::ranges::begin(stateQValues)
+                    );
+
                     math_vector<double> input(2, 0);
                     input[0] = agentRow / static_cast<double>(rows - 1);
                     input[1] = agentColumn / static_cast<double>(columns - 1);
 
                     math_vector<double> target(actions, 0);
-                    target[actionIndex] = 1;
+                    target[bestActionIndex] = 1;
 
                     mazeNN.fit(input, target);
 
+                    // progress to next frame:
                     agentRow = newRow;
                     agentColumn = newColumn;
                     ++stepsTaken;
                 }
 
-                epsilon *= 0.995;
+                epsilon *= 0.999;
             }
         }};
         std::cin.get();
