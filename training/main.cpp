@@ -71,14 +71,14 @@ int main()
 
     neural_network mazeNN({2, 32, 32, 4}, 0.01);
 
+    double qValues[states][actions]{};
+    constexpr double learningRate = 0.1,
+                     discount = 0.95;
+    double epsilon = 1;
+
     // thread of q-agent, which trains neural net:
     {
         std::jthread thr{[&](std::stop_token st) {
-            double qValues[states][actions]{};
-            constexpr double learningRate = 0.1,
-                             discount = 0.95;
-            double epsilon = 1;
-
             std::random_device rd;
             std::uniform_real_distribution<double> chanceDist(0, 1);
             std::uniform_int_distribution<int> actionDist(0, 3);
@@ -173,4 +173,7 @@ int main()
 
     std::ofstream biasesFile{"/home/cartercpp/Documents/C++/NNLearnsQAgent/biases.txt"};
     biasesFile << std::format("{}", mazeNN.biases());
+
+    std::ofstream qFile{"/home/cartercpp/Documents/C++/NNLearnsQAgent/qTable.txt"};
+    qFile << std::format("{}", qValues);
 }
