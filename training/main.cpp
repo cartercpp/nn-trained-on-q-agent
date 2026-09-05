@@ -69,7 +69,7 @@ int main()
         { CELL::OPEN, CELL::OPEN, CELL::OPEN, CELL::OPEN, CELL::OPEN, CELL::OPEN, CELL::CLOSED, CELL::CLOSED, CELL::OPEN, CELL::OPEN, CELL::OPEN, CELL::CLOSED, CELL::OPEN, CELL::OPEN, CELL::OPEN, CELL::CLOSED, CELL::OPEN, CELL::OPEN, CELL::OPEN, CELL::OPEN, CELL::OPEN, CELL::OPEN, CELL::OPEN, CELL::CLOSED, CELL::OPEN, CELL::OPEN, CELL::OPEN, CELL::OPEN, CELL::OPEN, CELL::END }
     };
 
-    neural_network mazeNN({2, 32, 32, 4}, 0.01);
+    neural_network mazeNN({6, 32, 32, 32, 4}, 0.005);
 
     double qValues[states][actions]{};
     constexpr double learningRate = 0.1,
@@ -158,9 +158,13 @@ int main()
                         std::ranges::max_element(stateQValues) - std::ranges::begin(stateQValues)
                     );
 
-                    math_vector<double> input(2, 0);
+                    math_vector<double> input(6, 0);
                     input[0] = agentRow / static_cast<double>(rows - 1);
                     input[1] = agentColumn / static_cast<double>(columns - 1);
+                    input[2] = (agentRow > 0) && (grid[agentRow - 1][agentColumn] != CELL::CLOSED);
+                    input[3] = (agentRow + 1 < rows) && (grid[agentRow + 1][agentColumn] != CELL::CLOSED);
+                    input[4] = (agentColumn > 0) && (grid[agentRow][agentColumn - 1] != CELL::CLOSED);
+                    input[5] = (agentColumn + 1 < columns) && (grid[agentRow][agentColumn + 1] != CELL::CLOSED);
 
                     math_vector<double> target(actions, 0);
                     target[bestActionIndex] = 1;
