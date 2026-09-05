@@ -119,7 +119,7 @@ int main()
 
                             break;
                         case ACTION::DOWN:
-                            if ((agentRow + 1 < rows) && (grid[agentRow - 1][agentColumn] != CELL::CLOSED))
+                            if ((agentRow + 1 < rows) && (grid[agentRow + 1][agentColumn] != CELL::CLOSED))
                                 newRow = agentRow + 1;
                             else
                                 reward = -1;
